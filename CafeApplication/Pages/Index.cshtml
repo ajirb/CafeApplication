@@ -1,0 +1,88 @@
+﻿@page
+@model IndexModel
+@Html.AntiForgeryToken()
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<div>
+    <div class="row">
+        <div class="col-3">
+            <a asp-page="/Menu/New" class="btn btn-primary">+ Add Today's Item</a>
+        </div>
+        <div class="col-4 custom-file">
+            <input type="file" class="custom-file-input" name="file" id="fileSelector" oninput="get_filename();">
+            <label id="fileInputLabel" class="custom-file-label" for="input">Upload previous data</label> 
+            
+        </div>
+        <div class="col-2">
+            <button id="btnUpload" class="btn btn-dark" onclick="upload()">Upload File</button>
+        </div>
+    </div>
+    <br />
+    <div class = "row">
+        <div class="col-12 ">
+            <div id = "txtMessage" style="display: block;">
+                @if (Model.errorMsg.Length > 0)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        <button type="button" class="close" data-bs-dismiss="alert">&times;</button>
+                        @Model.errorMsg
+                  </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div id="progressWrapper" class="d-none">
+        <label id="progressStatus"></label>
+        <div class="progress mb-3">
+            <div id="progress" class="progress-bar" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+    @if (Model.Items.Count() == 0 && Model.filterStr.Length==0)
+    {
+        <p class="text-center">No data to display</p>
+    }
+    else
+    {
+        <div class="row g-0">
+            <div>
+                <p>
+                    Find Item: <input type="text" id="filterString" value="@Model.filterStr"/>
+                    <button id="filterBtn"class="btn btn-primary">Search</button> |
+                    <a href="/">Remove Filter</a>
+                </p>
+            </div>
+            @if(Model.Items.Count() == 0) {<p class="text-center">No data to display</p>}
+            else{
+                @foreach( var day in Model.menu)
+                {
+                    var items = day.Value;
+                    <div>
+                         <p>Past @((day.Key+1)*7) days</p> 
+                    </div>
+                    foreach (var item in items)
+                    {
+                        <div class="card  col-3 m-2" style="width: 18rem;">
+                          <img class="cardimg" src="@item.URL" alt="No Image">
+                          <div class="card-body">
+                            <h5 class="card-title">@item.Name</h5>
+                            <p class="card-text">Price : @item.Price</p>
+                            <span class="card-text">Available : </span>
+                            <label class="switch">
+                              <input type="checkbox" @item.getAvailabeStatus() onchange="toggle(@item.Id)">
+                              <span class="slider round"></span>
+                            </label>
+                          </div>
+                        </div>
+                    }
+                }
+            }
+        </div>
+    }
+</div>
+@section Scripts{
+    <script src="~/js/upload.js" asp-append-version="true"></script>
+}
